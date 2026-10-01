@@ -24,7 +24,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
 
 function Row({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-3 py-2">
+    <div className="flex items-center justify-between gap-3 py-2 flex-wrap">
       <div className="min-w-0">
         <p className="font-extrabold">{label}</p>
         {hint && <p className="text-[13px] font-bold text-mute">{hint}</p>}

@@ -25,9 +25,9 @@ function Login() {
 
   return (
     <main className="mx-auto flex min-h-[80dvh] max-w-105 flex-col items-center justify-center px-6 text-center">
-      <Flame className="mb-4 size-28 drop-shadow-[0_6px_10px_rgba(255,122,26,.35)]" />
+      <img src='./icon.svg' className='w-26 mb-4 '/>
       <h1 className="text-3xl font-black">API BANG API</h1>
-      <p className="mt-1 mb-8 font-bold text-mute">Jaga apinya tiap hari. Masuk dulu biar streak-mu aman di semua perangkat.</p>
+      <p className="mt-1 mb-8 font-bold text-mute">Kegiatan apa pun, jadiin streak.</p>
       <button className="btn btn-ghost w-full py-3.5 text-base" onClick={google} disabled={busy}>
         <svg viewBox="0 0 48 48" className="size-5" aria-hidden="true">
           <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z" />

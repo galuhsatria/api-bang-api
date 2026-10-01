@@ -1,6 +1,7 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import appCss from '#/styles/app.css?url'
+import { Splash } from '#/components/Splash'
 
 const themeInit = `try{var t=localStorage.getItem('runut.theme');if(t)document.documentElement.dataset.theme=t}catch(e){}`
 
@@ -33,6 +34,7 @@ function RootDocument({ children }: { children: ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body>
+        <Splash/>
         {children}
         <Scripts />
       </body>

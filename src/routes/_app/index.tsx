@@ -34,7 +34,6 @@ function StreakPage() {
   const add = useAddHabit()
   const del = useDeleteHabit()
 
-  // sheet "Kegiatan baru" dibuka lewat tombol di bottom nav (?new=true)
   const { new: adding } = Route.useSearch()
   const navigate = useNavigate()
   const closeAdd = () => navigate({ to: '/', search: {}, replace: true })
@@ -88,7 +87,7 @@ function StreakPage() {
       {isLoading ? (
         <p className="py-9 text-center font-bold text-mute">Memuat…</p>
       ) : isError ? (
-        <p className="py-9 text-center font-bold text-danger">Gagal memuat data. Tarik ulang halaman.</p>
+        <p className="py-9 text-center font-bold text-danger">Gagal memuat data. Muat ulang halaman.</p>
       ) : habits.length === 0 ? (
         <div className="px-5 py-9 text-center font-bold text-mute">
           <span className="mb-1.5 block text-[54px]">🔥</span>

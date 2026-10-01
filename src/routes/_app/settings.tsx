@@ -79,12 +79,15 @@ function SoundList({ kind, title }: { kind: SoundKind; title: string }) {
           Belum ada suara. Upload beberapa file audio (maks {MAX_SOUND_BYTES / 1024 / 1024} MB per file).
         </p>
       ) : (
-        <ul className="grid gap-2">
+        <ul className="grid grid-cols-[minmax(0,1fr)] gap-2">
           {rows.map((r) => {
             const isPlaying = playing === r.path
             return (
-              <li key={r.id} className={`flex items-center gap-2 rounded-[14px] bg-bg p-2 pl-3 ${r.hidden ? 'opacity-55' : ''}`}>
-                <span className="min-w-0 flex-1 truncate font-bold">{r.name}{r.hidden && <em className="ml-1.5 text-xs text-mute not-italic">(disembunyikan)</em>}</span>
+              <li key={r.id} className={`flex min-w-0 items-center gap-2 rounded-[14px] bg-bg p-2 pl-3 ${r.hidden ? 'opacity-55' : ''}`}>
+                <span className="flex min-w-0 flex-1 items-baseline gap-1.5">
+                  <span className="truncate font-bold" title={r.name}>{r.name}</span>
+                  {r.hidden && <em className="flex-none text-xs text-mute not-italic">(disembunyikan)</em>}
+                </span>
                 <button
                   className={`btn btn-sm ${isPlaying ? 'btn-fire' : 'btn-ghost'}`}
                   aria-label={isPlaying ? `Stop ${r.name}` : `Putar ${r.name}`}
@@ -244,10 +247,6 @@ function SettingsPage() {
       </Section>
 
       <Section title="Layar utama">
-        <p className="mb-3 flex gap-2 text-[13px] font-bold text-mute">
-          <Smartphone size={16} className="mt-0.5 flex-none" />
-          Widget web belum bisa dipasang di layar utama Android/iPhone. Sebagai gantinya, tambahkan app ini ke layar utama; pesan semangatnya tampil lewat notifikasi dan kartu di halaman Streak.
-        </p>
         {standalone ? (
           <p className="font-extrabold text-mint">Sudah terpasang di layar utama ✓</p>
         ) : installEvt ? (

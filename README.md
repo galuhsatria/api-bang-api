@@ -1,209 +1,146 @@
-Welcome to your new TanStack Start app!
+# 🔥 API BANG API
 
-# Getting Started
+A habit streak tracker you can install on your phone. Check off your habits every day, keep the flame alive, and get a nudge in Gen Z Indonesian when you forget.
 
-To run this application:
+Built with TanStack Start, Tailwind CSS, and Supabase.
+
+## Features
+
+- **Streaks** with a 7-day strip, best streak, total check-ins, and a monthly calendar per habit
+- **Freeze state**: when a streak breaks, the card turns icy with ❄️ and shows how long the lost streak was
+- **Google sign-in** (Supabase Auth); every row is protected by Row Level Security
+- **Icon picker**: preset grid plus any emoji or symbol typed from your keyboard
+- **Custom sounds** for check-ins and milestones (3, 7, 14, 30, 50, 100, 365 days)
+  - upload multiple files, max 2 MB each, audio only
+  - mute, random or sequential playback, hide, delete
+  - only one sound plays at a time, with a Stop button
+  - files live in a private Supabase Storage bucket
+- **Push reminders** when habits are still unchecked after your reminder time (default 20:00, once per day)
+- **Short motivational messages** (max 4 syllables) that change with the time of day: morning, noon, afternoon, evening
+- **Installable PWA**, with a floating bottom nav and light/dark theme
+
+## Tech stack
+
+| Area | Tool |
+| --- | --- |
+| Framework | TanStack Start (React), file-based routing |
+| Styling | Tailwind CSS v4 |
+| Data fetching | TanStack Query |
+| Backend | Supabase (Postgres, Auth, Storage, Edge Functions, pg_cron) |
+| Push | Web Push (VAPID) via `web-push` |
+| Icons | lucide-react |
+
+## Getting started
+
+### 1. Install
 
 ```bash
 npm install
+npm i @supabase/supabase-js @tanstack/react-query lucide-react
+npm i -D tailwindcss @tailwindcss/vite   # skip if your Start template already has them
+```
+
+`vite.config.ts` needs the `tailwindcss()` plugin from `@tailwindcss/vite` alongside `tanstackStart()` and `viteReact()`.
+
+### 2. Environment
+
+```bash
+cp .env.example .env
+```
+
+| Variable | Where to get it |
+| --- | --- |
+| `VITE_SUPABASE_URL` | Supabase → Project Settings → API |
+| `VITE_SUPABASE_ANON_KEY` | Same page (anon public key) |
+| `VITE_VAPID_PUBLIC_KEY` | `npx web-push generate-vapid-keys` |
+
+### 3. Supabase
+
+1. **Auth → Providers → Google**: enable it with a Client ID and Secret from Google Cloud Console.
+2. **Auth → URL Configuration**: add `http://localhost:3000` (match your dev port) and your production domain to the Redirect URLs.
+3. Run the SQL in the Supabase SQL editor, in order:
+   - `supabase/migrations/001_init.sql`
+   - `supabase/migrations/002_push_reminders.sql` (replace `YOUR_PROJECT_REF` and `YOUR_CRON_SECRET` first)
+4. Deploy the reminder function:
+
+```bash
+supabase secrets set \
+  VAPID_PUBLIC_KEY=... \
+  VAPID_PRIVATE_KEY=... \
+  VAPID_SUBJECT=mailto:you@example.com \
+  CRON_SECRET=...
+
+supabase functions deploy send-reminders --no-verify-jwt
+```
+
+`CRON_SECRET` must match the `x-cron-secret` header in the cron job from `002_push_reminders.sql`.
+
+Test the function before relying on cron:
+
+```bash
+curl -X POST https://YOUR_PROJECT_REF.supabase.co/functions/v1/send-reminders \
+  -H "x-cron-secret: YOUR_CRON_SECRET"
+```
+
+`{"sent":0}` means it runs but nothing was due or nobody is subscribed yet.
+
+### 4. Run
+
+```bash
 npm run dev
 ```
 
-# Building For Production
+Push notifications and PWA install need HTTPS (`localhost` is the exception), so test push on a deployed build.
 
-To build this application for production:
+## Project structure
+
+```
+public/
+  manifest.webmanifest      PWA manifest
+  sw.js                     service worker (install + push only, no caching)
+  icon.svg, icon-*.png
+src/
+  components/               HabitCard, DetailSheet, IconPicker, Widget, BottomNav, ...
+  lib/
+    supabase.ts             client
+    queries.ts              TanStack Query hooks for habits, settings, sounds
+    streak.ts               streak, best, and frozen calculation
+    sounds.ts               playback, prefetch, one-at-a-time control
+    messages.ts             time-of-day motivational messages
+    push.ts                 push subscribe/unsubscribe
+  routes/
+    __root.tsx              document shell, manifest, theme
+    login.tsx               Google sign-in
+    _app.tsx                auth guard layout
+    _app/index.tsx          streak page (/)
+    _app/settings.tsx       settings page (/settings)
+  styles/app.css            Tailwind theme tokens and button styles
+supabase/
+  migrations/               001_init.sql, 002_push_reminders.sql
+  functions/send-reminders/ Edge Function that sends the pushes
+```
+
+## How it works
+
+- **Auth guard**: `_app.tsx` checks the Supabase session before loading any page and redirects to `/login` if there is none. These routes render on the client only, since the session lives in the browser.
+- **Dates**: a check-in is stored as a plain `date` using the device's local day.
+- **Sounds**: files are downloaded once from the private bucket, cached as object URLs, and prefetched so playback is instant after a check-in. Sequential mode keeps its position in `localStorage`.
+- **Reminders**: pg_cron calls the Edge Function every 5 minutes. For each user with reminders on, it computes the local time from their stored timezone and sends one push if any habit is still unchecked within two hours after their reminder time.
+- **New habit button**: the `+` in the bottom nav links to `/?new=true`, which opens the sheet and is cleared on close.
+
+## Known limitations
+
+- **No real home-screen widget.** Web apps cannot create widgets on Android or iOS. Install the PWA to the home screen instead; the motivational messages appear in notifications and in the card on the Streak page. A true widget needs a native wrapper such as Capacitor.
+- **iPhone push** only works after the app is added to the home screen.
+- **Titles are not encrypted.** Habit names are readable in the database by anyone with dashboard or service-role access. RLS only keeps other users out.
+
+## Scripts
 
 ```bash
-npm run build
+npm run dev      # development server
+npm run build    # production build
 ```
 
-## Styling
+## License
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-### Removing Tailwind CSS
-
-If you prefer not to use Tailwind CSS:
-
-1. Remove the demo pages in `src/routes/demo/`
-2. Replace the Tailwind import in `src/styles.css` with your own styles
-3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
-4. Remove `@tailwindcss/vite` and `tailwindcss` from `package.json`
-
-## Linting & Formatting
-
-This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
-
-
-```bash
-npm run lint
-npm run format
-npm run check
-```
-
-
-## Deploy to Vercel
-
-1. Push this repo to GitHub, GitLab, or Bitbucket
-2. In Vercel, choose **Add New > Project** and import the repo
-3. Keep the detected TanStack Start framework settings
-4. Add production values from `.env.example` under **Settings > Environment Variables**
-5. Deploy
-
-Vercel runs the build script and deploys Nitro's output as Vercel Functions and
-static assets. The included `vercel.json` makes framework detection explicit.
-
-Variables prefixed with `VITE_` are included in the browser bundle. Keep secrets
-unprefixed so they remain server-only.
-
-
-
-## Routing
-
-This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you render `{children}` in the `shellComponent`.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      { charSet: 'utf-8' },
-      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { title: 'My App' },
-    ],
-  }),
-  shellComponent: ({ children }) => (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <header>
-          <nav>
-            <Link to="/">Home</Link>
-            <Link to="/about">About</Link>
-          </nav>
-        </header>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  ),
-})
-```
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-## Server Functions
-
-TanStack Start provides server functions that allow you to write server-side code that seamlessly integrates with your client components.
-
-```tsx
-import { createServerFn } from '@tanstack/react-start'
-
-const getServerTime = createServerFn({
-  method: 'GET',
-}).handler(async () => {
-  return new Date().toISOString()
-})
-
-// Use in a component
-function MyComponent() {
-  const [time, setTime] = useState('')
-  
-  useEffect(() => {
-    getServerTime().then(setTime)
-  }, [])
-  
-  return <div>Server time: {time}</div>
-}
-```
-
-## API Routes
-
-You can create API routes by using the `server` property in your route definitions:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { json } from '@tanstack/react-start'
-
-export const Route = createFileRoute('/api/hello')({
-  server: {
-    handlers: {
-      GET: () => json({ message: 'Hello, World!' }),
-    },
-  },
-})
-```
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/people')({
-  loader: async () => {
-    const response = await fetch('https://swapi.dev/api/people')
-    return response.json()
-  },
-  component: PeopleComponent,
-})
-
-function PeopleComponent() {
-  const data = Route.useLoaderData()
-  return (
-    <ul>
-      {data.results.map((person) => (
-        <li key={person.name}>{person.name}</li>
-      ))}
-    </ul>
-  )
-}
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
-
-For TanStack Start specific documentation, visit [TanStack Start](https://tanstack.com/start).
+Choose a license before publishing, for example MIT.

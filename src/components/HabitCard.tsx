@@ -57,8 +57,7 @@ export function HabitCard({ habit, onToggle, onCalendar, onDelete }: {
         {on ? <><Check size={20} strokeWidth={3.5} />Sudah selesai hari ini</> : a.frozen ? 'Mulai lagi hari ini' : 'Selesai hari ini'}
       </button>
 
-      <div className="mt-3 flex items-center justify-between gap-2 text-[13px] font-bold text-mute">
-        <span>{a.frozen ? 'Cairkan lagi apinya!' : a.current ? 'Pertahankan besok!' : 'Mulai streak hari ini'}</span>
+      <div className="mt-4 flex items-center justify-end gap-2 text-[13px] font-bold text-mute">
         <span className="flex gap-2">
           <button className="btn btn-sm btn-ghost" onClick={onCalendar}><CalendarDays size={15} className="text-fire" strokeWidth={2.5} />Kalender</button>
           <button className="btn btn-sm btn-danger" onClick={onDelete}><Trash2 size={15} strokeWidth={2.5} />Hapus</button>

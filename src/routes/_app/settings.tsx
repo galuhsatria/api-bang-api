@@ -1,6 +1,6 @@
 import { createFileRoute, useRouteContext } from '@tanstack/react-router'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { BellOff, Download, Eye, EyeOff, ListOrdered, LogOut, Play, Shuffle, Smartphone, Square, Trash2, Upload, Volume2, VolumeX } from 'lucide-react'
+import { BellOff, Download, Eye, EyeOff, ListOrdered, LogOut, Play, Shuffle, Square, Trash2, Upload, Volume2, VolumeX } from 'lucide-react'
 import { ConfirmSheet } from '#/components/ConfirmSheet'
 import { toast } from '#/components/Toaster'
 import { disablePush, enablePush, pushState } from '#/lib/push'

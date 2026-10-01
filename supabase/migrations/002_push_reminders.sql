@@ -25,8 +25,8 @@ select cron.schedule(
   '*/5 * * * *',
   $$
   select net.http_post(
-    url := 'https://sdclayyuljzinoolnema.supabase.co/functions/v1/send-reminders',
-    headers := jsonb_build_object('Content-Type', 'application/json', 'x-cron-secret', '9a3e885d571899199c010aeb4b8e323bd02d310dc8a9e65953d44f4feb9feea1')
+    url := 'https://YOUR_PROJECT_REF.supabase.co/functions/v1/send-reminders',
+    headers := jsonb_build_object('Content-Type', 'application/json', 'x-cron-secret', 'YOUR_CRON_SECRET')
   );
   $$
 );

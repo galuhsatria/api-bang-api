@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+:root {
+    --bg: #FFF8EC;
+    --card: #FFFFFF;
+    --ink: #1F1B3A;
+    --mute: #7A7590;
+    --line: #EFE6D3;
+    --empty: #EFE6D3;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #16132B;
+        --card: #221E40;
+        --ink: #FFF4E0;
+        --mute: #A29CC0;
+        --line: #332E58;
+        --empty: #332E58;
+    }
+}
+
+:root[data-theme="dark"] {
+    --bg: #16132B;
+    --card: #221E40;
+    --ink: #FFF4E0;
+    --mute: #A29CC0;
+    --line: #332E58;
+    --empty: #332E58;
+}
+
+@theme inline {
+    --color-bg: var(--bg);
+    --color-card: var(--card);
+    --color-ink: var(--ink);
+    --color-mute: var(--mute);
+    --color-line: var(--line);
+    --color-empty: var(--empty);
+    --color-fire: #FF7A1A;
+    --color-sun: #FFC93C;
+    --color-mint: #2FBF86;
+    --font-sans: ui-rounded, "Nunito", "SF Pro Rounded", "Segoe UI", system-ui, sans-serif;
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
+}
